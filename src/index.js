@@ -12,7 +12,7 @@ const uid = new ShortUniqueId({ length: 10 });
 const adminRoutes = fs
 	.readdirSync('./routes/admin')
 	.filter((file) => file.endsWith('.js'));
-const quizRoutes = fs
+const userRoutes = fs
 	.readdirSync('./routes/user')
 	.filter((file) => file.endsWith('.js'));
 
@@ -47,7 +47,7 @@ async function connect() {
 
 function handleRoutes() {
 	const methods = ['get', 'post', 'put', 'delete'];
-	const dirs = [adminRoutes, quizRoutes];
+	const dirs = [adminRoutes, userRoutes];
 	dirs.forEach((dir) => {
 		for (const file of dir) {
 			const endpoint = require(
