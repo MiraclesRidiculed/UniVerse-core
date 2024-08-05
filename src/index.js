@@ -6,14 +6,14 @@ const compression = require('compression');
 const App = express();
 require('dotenv').config({ path: '../.env' });
 const mongoose = require('mongoose');
-const { err, success, misc, blue, caution } = require('./modules/Util');
+const { err, success, misc, blue, caution } = require('./Modules/Util');
 
 const uid = new ShortUniqueId({ length: 10 });
 const adminRoutes = fs
-	.readdirSync('./routes/admin')
+	.readdirSync('./Routes/admin')
 	.filter((file) => file.endsWith('.js'));
 const userRoutes = fs
-	.readdirSync('./routes/user')
+	.readdirSync('./Routes/user')
 	.filter((file) => file.endsWith('.js'));
 
 App.use(express.json());

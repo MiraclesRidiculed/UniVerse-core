@@ -12,4 +12,7 @@ module.exports = {
 			res.json(App.admin)
 			:	res.sendStatus(401);
 	},
+	async post(App, req, res) {
+
+	}
 };
