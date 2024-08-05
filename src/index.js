@@ -51,7 +51,7 @@ function handleRoutes() {
 	dirs.forEach((dir) => {
 		for (const file of dir) {
 			const endpoint = require(
-				`./routes/${dir === adminRoutes ? 'admin' : 'user'}/${file}`,
+				`./Routes/${dir === adminRoutes ? 'admin' : 'user'}/${file}`,
 			);
 
 			(async function (App) {

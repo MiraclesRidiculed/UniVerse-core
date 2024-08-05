@@ -11,3 +11,5 @@
 ### - Campus
 
 ### - Support/Help/Contact
+
+Run `npm i pm2 -g` before production use
