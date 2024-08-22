@@ -7,7 +7,7 @@ const App = express();
 require('dotenv').config({ path: '../.env' });
 const mongoose = require('mongoose');
 const { err, success, misc, blue, caution } = require('./Modules/Logger');
-const { authenticateAdmin, rateLimiterMiddleware, caution } = require('./Modules/Util');
+const { authenticateAdmin, rateLimiterMiddleware } = require('./Modules/Util');
 
 const uid = new ShortUniqueId({ length: 10 });
 
