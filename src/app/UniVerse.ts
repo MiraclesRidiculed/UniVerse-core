@@ -1,5 +1,8 @@
 import { misc, blue } from '../modules/logger';
 import { Database } from './database';
+import Express from './express';
+import { ADMIN } from './cache';
+
 import dotenv from 'dotenv';
 import path from 'path';
 
@@ -9,6 +12,11 @@ class UniVerse {
 		blue(
 			'------------------ UniVerse - Core ------------------------------------------------',
 		);
+	}
+
+	public loadCache(): void {
+		process.env.ADMIN = ADMIN;
+		// More in the future
 	}
 
 	public loadConfiguration (): void {
@@ -23,8 +31,12 @@ class UniVerse {
 		Database.start();
 	}
 
-	public loadServer(): void {
+	public loadServer (): void {
+		misc(`Server :: Booting - PORT: ${process.env.PORT}`);
 
+		Express.init();
 	}
 
 }
+
+export default new UniVerse;

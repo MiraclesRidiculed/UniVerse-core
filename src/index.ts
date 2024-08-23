@@ -1,21 +1,11 @@
-import fs, { promises } from 'fs';
-import path from 'path';
+import UniVerse from './app/UniVerse';
 
-import express from 'express';
-// @ts-ignore
-import compression from 'compression';
-import dotenv from "dotenv";
-import mongoose from 'mongoose'
+UniVerse.loadConfiguration();
 
-import { err, success, misc, blue, caution } from './modules/logger';
-import { authenticateAdmin, rateLimiterMiddleware } from './modules/util';
+UniVerse.init();
 
-const App = express();
-dotenv.config({ path: '../.env' });
+UniVerse.loadDatabase();
 
+UniVerse.loadCache()
 
-App.use(express.json());
-App.use(compression());
-App.disable('x-powered-by');
-App.use(rateLimiterMiddleware);
-
+UniVerse.loadServer();
