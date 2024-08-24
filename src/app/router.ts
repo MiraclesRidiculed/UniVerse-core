@@ -1,4 +1,4 @@
-import express, { NextFunction, Router, Response, Request } from 'express';
+import express, { Router, Request, Response, NextFunction } from 'express';
 import path from 'path';
 import fs from 'fs';
 
@@ -8,29 +8,36 @@ const routePaths = {
 };
 
 function loadRoutesFromDirectory(routePath: string) {
-	const routes: { [key: string]: any } = {};
+	const routes: { [key: string]: any } = { };
 	const directoryPath = path.join(__dirname, '../routes', routePath);
 	const files = fs.readdirSync(directoryPath);
 
 	files.forEach((fileName) => {
 		if (fileName.endsWith('.js')) {
-			const routeKey = `/${routePath}/${path.basename(fileName, '.js')}`;
-			routes[routeKey] = require(path.join(directoryPath, fileName));
+			const routeModule = require(path.join(directoryPath, fileName));
+			const routeName = `/${routeModule.name}`;
+			if (routeName) {
+				routes[routeName] = routeModule;
+			}
 		}
 	});
 
 	return routes;
 }
 
-function registerRoutes(router: Router, routePath: string, methods: string[], routes: { [key: string]: any }) {
+function registerRoutes(
+	router: Router,
+	routePath: string,
+	methods: string[],
+	routes: { [key: string]: any }
+) {
 	Object.keys(routes).forEach((routeKey) => {
 		const endpoint = routes[routeKey];
 
 		methods.forEach((method) => {
 			if (endpoint[method]) {
-
 				// @ts-ignore
-				router[method](routeKey.replace(`/${routePath}`, ''), async (req: Request, res: Response, next: NextFunction) => {
+				router[method](routeKey, async (req: Request, res: Response, next: NextFunction) => {
 					try {
 						await endpoint[method](req, res, next);
 					} catch (error) {
