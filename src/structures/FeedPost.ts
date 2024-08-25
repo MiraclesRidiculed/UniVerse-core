@@ -1,5 +1,3 @@
-class FeedPost {
-
-}
+class FeedPost {}
 
 export default FeedPost;

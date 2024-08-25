@@ -8,7 +8,7 @@ const routePaths = {
 };
 
 function loadRoutesFromDirectory(routePath: string) {
-	const routes: { [key: string]: any } = { };
+	const routes: { [key: string]: any } = {};
 	const directoryPath = path.join(__dirname, '../routes', routePath);
 	const files = fs.readdirSync(directoryPath);
 
@@ -16,9 +16,7 @@ function loadRoutesFromDirectory(routePath: string) {
 		if (fileName.endsWith('.js')) {
 			const routeModule = require(path.join(directoryPath, fileName));
 			const routeName = `/${routeModule.name}`;
-			if (routeName) {
-				routes[routeName] = routeModule;
-			}
+			if (routeName) routes[routeName] = routeModule;
 		}
 	});
 
@@ -29,22 +27,28 @@ function registerRoutes(
 	router: Router,
 	routePath: string,
 	methods: string[],
-	routes: { [key: string]: any }
+	routes: { [key: string]: any },
 ) {
 	Object.keys(routes).forEach((routeKey) => {
 		const endpoint = routes[routeKey];
 
 		methods.forEach((method) => {
 			if (endpoint[method]) {
+				console.log('rip');
 				// @ts-ignore
-				router[method](routeKey, async (req: Request, res: Response, next: NextFunction) => {
-					try {
-						await endpoint[method](req, res, next);
-					} catch (error) {
-						console.error(`Error handling route ${routeKey}: ${error}`);
-						res.sendStatus(500);
-					}
-				});
+				router[method](
+					routeKey,
+					async (req: Request, res: Response, next: NextFunction) => {
+						try {
+							await endpoint[method](req, res, next);
+						} catch (error) {
+							console.error(
+								`Error handling route ${routeKey}: ${error}`,
+							);
+							res.sendStatus(500);
+						}
+					},
+				);
 			}
 		});
 	});

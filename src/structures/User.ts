@@ -1,5 +1,3 @@
-class User {
-
-}
+class User {}
 
 export default User;

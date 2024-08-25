@@ -1,7 +1,11 @@
-import UniVerse from '../app/UniVerse'
+import UniVerse from '../app/UniVerse';
 import Hotspot from './Hotspot';
 import campus from './Campus';
-import { departments, UniversityName, MetaData } from '../data/UniversityConstants';
+import {
+	departments,
+	UniversityName,
+	MetaData,
+} from '../data/UniversityConstants';
 import Campus from './Campus';
 
 interface UniversityMetaData {
@@ -10,7 +14,6 @@ interface UniversityMetaData {
 	website: string;
 	enrolled: number;
 }
-
 
 class University {
 	public departments: string[];
@@ -26,7 +29,6 @@ class University {
 		this.meta = MetaData;
 		this.campus = new Campus();
 	}
-
 }
 
 export default University;

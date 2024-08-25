@@ -7,10 +7,11 @@
 
 import { Request, Response } from 'express';
 
-export const name = 'login/:id'
+export const name = 'login/:id';
 
 export const get = (req: Request, res: Response) => {
 	console.log(req.params);
-	if (process.env.PASSWORD === req.get('Authorization')) return res.json(process.env.ADMIN);
+	if (process.env.PASSWORD === req.get('Authorization'))
+		return res.json(process.env.ADMIN);
 	else return res.sendStatus(401);
-}
+};

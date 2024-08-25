@@ -15,8 +15,12 @@ class Database {
 		this.started = false;
 	}
 
-	public async start (): Promise<any> {
-		if (!process.env.MONGO_URI || !(typeof process.env.MONGO_URI === 'string')) return err('MongoDB URI must be a string');
+	public async start(): Promise<any> {
+		if (
+			!process.env.MONGO_URI ||
+			!(typeof process.env.MONGO_URI === 'string')
+		)
+			return err('MongoDB URI must be a string');
 		const dbName: string = process.env.DB_NAME || 'core';
 		(<any>mongoose).Promise = bluebird;
 
@@ -24,7 +28,9 @@ class Database {
 			await mongoose.connect(process.env.MONGO_URI, {
 				dbName: dbName,
 			});
-			success('Established connection with Database: ' + dbName.toUpperCase());
+			success(
+				'Established connection with Database: ' + dbName.toUpperCase(),
+			);
 			// @ts-ignore
 		} catch (error: MongoError) {
 			err('Failed to connect to the Mongo server:');
@@ -37,9 +43,7 @@ class Database {
 
 	private async fetchUsers(UniVerse: UniVerse): Promise<void> {
 		const UserData = await UserSchema.find();
-		for (const user of UserData)
-			UniVerse.users.set(user.id, user);
-
+		for (const user of UserData) UniVerse.users.set(user.id, user);
 	}
 
 	private async fetchHotspots(UniVerse: UniVerse): Promise<void> {
@@ -54,4 +58,3 @@ class Database {
 }
 
 export default new Database();
-

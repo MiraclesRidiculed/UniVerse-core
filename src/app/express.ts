@@ -1,4 +1,3 @@
-
 import express, { Application } from 'express';
 // @ts-ignore
 import compression from 'compression';
@@ -9,9 +8,9 @@ import { setupClientRouter, setupAdminRouter } from './router';
 class Express {
 	public express: express.Application;
 
-	constructor () {
+	constructor() {
 		this.express = express();
-		this.mountRoutes();
+		this.mountRouters(this.express);
 		this.mountMiddleware(this.express);
 	}
 
@@ -22,30 +21,21 @@ class Express {
 		_express.disable('x-powered-by');
 	}
 
-	private mountClient(_express: Application): Application {
-		misc('Routes :: Mounting Client Routes...');
-
-		return _express.use('/client', setupClientRouter);
+	private mountRouters(_express: Application): void {
+		this.express = _express.use(`/admin`, setupAdminRouter());
+		this.express = _express.use('/client', setupClientRouter());
 	}
 
-	private mountAdmin(_express: Application): Application {
-		misc('Routes :: Mounting Admin Routes...');
-
-		return _express.use(`/admin`, setupAdminRouter());
-	}
-
-	private mountRoutes (): void {
-		this.express = this.mountAdmin(this.express);
-		this.express = this.mountClient(this.express);
-	}
-
-	public init (): void {
-		this.express.listen(process.env.PORT, () => {
-			return blue(`Express server listening on http://localhost:${process.env.PORT}/`);
-		})
-		.on('error', (_error) => {
-			return err(_error.message);
-		});
+	public init(): void {
+		this.express
+			.listen(process.env.PORT, () => {
+				return blue(
+					`Express server listening on http://localhost:${process.env.PORT}/`,
+				);
+			})
+			.on('error', (_error) => {
+				return err(_error.message);
+			});
 	}
 }
 

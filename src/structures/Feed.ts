@@ -1,5 +1,3 @@
-class Feed {
-
-}
+class Feed {}
 
 export default Feed;

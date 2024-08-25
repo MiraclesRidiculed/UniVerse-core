@@ -6,8 +6,6 @@
 
 ### - Network/Connections - Search Icon
 
-### - Campus - Hotspots, etc *
+### - Campus - Hotspots, etc \*
 
 ### - User Profile
-
-

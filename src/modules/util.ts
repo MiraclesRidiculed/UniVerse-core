@@ -7,9 +7,14 @@ const rateLimiter = new RateLimiterMemory({
 	duration: 1,
 });
 
-export const rateLimiterMiddleware = (req: Request, res: Response, next: NextFunction) => {
+export const rateLimiterMiddleware = (
+	req: Request,
+	res: Response,
+	next: NextFunction,
+) => {
 	const token = req.get('Authorization')?.split(' ')[1] || req.ip;
-	if (!token) return res.status(401).send('Unauthorized: Client IP unavailable');
+	if (!token)
+		return res.status(401).send('Unauthorized: Client IP unavailable');
 	rateLimiter
 		.consume(token, 1)
 		.then(() => {
@@ -28,5 +33,3 @@ export function authenticateAdmin(req: Request, ignoreRoutes: [string]) {
 		);
 	else return true;
 }
-
-

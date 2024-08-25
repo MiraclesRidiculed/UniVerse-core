@@ -8,7 +8,7 @@ const HotspotSchema = new Schema({
 	location: {
 		type: String,
 		required: true,
-	}
+	},
 });
 
 export default mongoose.model('Hotspot', HotspotSchema);

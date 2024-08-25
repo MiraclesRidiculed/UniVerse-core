@@ -3,7 +3,6 @@ interface HotspotData {
 	location: string;
 }
 
-
 class Hotspot implements HotspotData {
 	public location: string;
 	public type: string;
