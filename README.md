@@ -4,12 +4,10 @@
 
 ### - Showcase/Spotlight/Feed
 
-### - Network/Connections
+### - Network/Connections - Search Icon
 
-### - Resources
+### - Campus - Hotspots, etc *
 
-### - Campus
+### - User Profile
 
-### - Support/Help/Contact
 
-Run `npm i pm2 -g` before production use
