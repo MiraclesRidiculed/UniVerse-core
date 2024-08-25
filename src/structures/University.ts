@@ -1,6 +1,8 @@
 import UniVerse from '../app/UniVerse'
 import Hotspot from './Hotspot';
+import campus from './Campus';
 import { departments, UniversityName, MetaData } from '../data/UniversityConstants';
+import Campus from './Campus';
 
 interface UniversityMetaData {
 	area: string;
@@ -9,34 +11,20 @@ interface UniversityMetaData {
 	enrolled: number;
 }
 
-interface HotspotData {
-	type: string;
-	location: string;
-}
 
 class University {
-	public hotspots: Set<Hotspot>;
 	public departments: string[];
 	public name: string;
 	public UniVerse: UniVerse;
 	public meta: UniversityMetaData;
+	public campus: Campus;
 
 	constructor(UniVerse: UniVerse) {
-		this.hotspots = new Set<Hotspot>();
 		this.departments = departments;
 		this.UniVerse = UniVerse;
 		this.name = UniversityName;
 		this.meta = MetaData;
-	}
-
-	add(data: HotspotData): Set<Hotspot> {
-		this.hotspots.add(data);
-		return this.hotspots;
-	}
-
-	bulkAdd(datas: HotspotData[]): Set<Hotspot> {
-		for (const data of datas) this.add(data);
-		return this.hotspots;
+		this.campus = new Campus();
 	}
 
 }

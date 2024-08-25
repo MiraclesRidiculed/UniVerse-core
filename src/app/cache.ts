@@ -8,7 +8,9 @@
  */
 
 import ShortUniqueId from 'short-unique-id';
-
+import { Collection } from '@discordjs/collection';
 
 const uid = new ShortUniqueId({ length: 10 });
 export const ADMIN = uid.rnd();
+
+export const cookies = new Collection<string, string[]>();

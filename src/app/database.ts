@@ -44,7 +44,7 @@ class Database {
 
 	private async fetchHotspots(UniVerse: UniVerse): Promise<void> {
 		const HotspotData = await HotspotSchema.find();
-		UniVerse.university.bulkAdd(HotspotData);
+		UniVerse.university.campus.bulkAdd(HotspotData);
 	}
 
 	public async fetchData(UniVerse: UniVerse) {
