@@ -10,7 +10,6 @@ import { cookies } from '../../app/cache';
 export const name = 'cookie';
 
 export async function get(req: Request, res: Response) {
-	console.log('bro');
 	res.send('bro');
 }
 
