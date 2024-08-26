@@ -6,7 +6,6 @@ import * as bluebird from 'bluebird';
 import { err, success } from '../modules/logger';
 import UserSchema from '../schemas/UserSchema';
 import HotspotSchema from '../schemas/HotspotSchema';
-import Hotspot from '../structures/Hotspot';
 
 class Database {
 	private started: boolean;
@@ -48,7 +47,7 @@ class Database {
 
 	private async fetchHotspots(UniVerse: UniVerse): Promise<void> {
 		const HotspotData = await HotspotSchema.find();
-		UniVerse.university.campus.bulkAdd(HotspotData);
+		UniVerse.university.bulkAddHotspot(HotspotData);
 	}
 
 	public async fetchData(UniVerse: UniVerse) {

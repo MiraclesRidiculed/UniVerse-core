@@ -41,7 +41,7 @@ class University {
 		return this.hotspots;
 	}
 
-	async create(data: HotspotData): Promise<Hotspot|string> {
+	async createHotspot(data: HotspotData): Promise<Hotspot|string> {
 		const HotspotInstance = new HotspotSchema(data);
 		try {
 			await HotspotInstance.save();

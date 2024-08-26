@@ -9,22 +9,27 @@ const UserSchema = new Schema({
 	name: {
 		type: String,
 		required: true,
-		unique: true,
 	},
 	email: {
 		type: String,
 		required: true,
-		unique: true,
+		unique: true
 	},
 	department: {
 		type: String,
 		required: true,
-		unique: true,
 	},
 	batch: {
 		type: Number,
 		required: true,
 	},
+	handles: {
+		instagram: String,
+		github: String,
+		facebook: String,
+		twitter: String,
+		linkedin: String,
+	}
 });
 
 export default mongoose.model('User', UserSchema);
