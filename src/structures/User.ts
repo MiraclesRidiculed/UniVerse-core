@@ -11,7 +11,6 @@ interface Handles {
 	instagram: string,
 	github: string,
 	facebook: string,
-	twitter: string,
 	linkedin: string,
 }
 
@@ -31,8 +30,6 @@ class User implements UserData {
 		this.batch = data.batch;
 		this.handles = data.handles;
 	}
-
-
 }
 
 export default User;

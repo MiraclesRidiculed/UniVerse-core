@@ -24,11 +24,22 @@ const UserSchema = new Schema({
 		required: true,
 	},
 	handles: {
-		instagram: String,
-		github: String,
-		facebook: String,
-		twitter: String,
-		linkedin: String,
+		instagram: {
+			type: String,
+			default: '',
+		},
+		github: {
+			type: String,
+			default: '',
+		},
+		facebook: {
+			type: String,
+			default: '',
+		},
+		linkedin: {
+			type: String,
+			default: '',
+		},
 	}
 });
 

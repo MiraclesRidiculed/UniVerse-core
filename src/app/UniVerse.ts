@@ -19,7 +19,6 @@ class UniVerse {
 	}
 
 	private init(): void {
-		// process.stdout.write('\x1B[2J\x1B[0f');
 		blue(
 			'------------------ UniVerse - Core ------------------------------------------------',
 		);
@@ -43,20 +42,19 @@ class UniVerse {
 		Express.init();
 	}
 
-	private loadData(UniVerse: this): void {
+	private loadData(): void {
 		process.env.ADMIN = ADMIN;
 
-		Database.fetchData(this).then((r) =>
+		Database.fetchData(this).then(() =>
 			success('Data successfully fetched from Database'),
 		);
-		// More in the future
 	}
 
 	public async login(): Promise<this> {
 		this.init();
 		this.loadConfiguration();
 		await this.connectDatabase();
-		this.loadData(this);
+		this.loadData();
 		this.loadServer();
 
 		return this;

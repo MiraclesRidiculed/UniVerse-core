@@ -34,7 +34,6 @@ function registerRoutes(
 
 		methods.forEach((method) => {
 			if (endpoint[method]) {
-				console.log('rip');
 				// @ts-ignore
 				router[method](
 					routeKey,

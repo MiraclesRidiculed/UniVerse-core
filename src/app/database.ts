@@ -41,8 +41,11 @@ class Database {
 	}
 
 	private async fetchUsers(UniVerse: UniVerse): Promise<void> {
-		const UserData = await UserSchema.find();
-		for (const user of UserData) UniVerse.users.set(user.id, user);
+		const UserData = await UserSchema.find().lean();
+		for (const user of UserData) {
+			// @ts-ignore
+			UniVerse.users.set(user.id, user);
+		}
 	}
 
 	private async fetchHotspots(UniVerse: UniVerse): Promise<void> {
