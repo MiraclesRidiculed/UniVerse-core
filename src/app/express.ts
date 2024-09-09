@@ -13,15 +13,11 @@ class Express {
 	constructor() {
 		this.express = express();
 		this.mountRouters(this.express);
-		this.mountMiddleware(this.express);
-	}
-
-	private mountMiddleware(_express: Application): void {
-		_express.use(express.json());
-		_express.use(compression());
-		_express.use(rateLimiterMiddleware);
-		_express.use(cors());
-		_express.disable('x-powered-by');
+		this.express.use(cors());
+		this.express.use(express.json());
+		this.express.use(compression());
+		this.express.use(rateLimiterMiddleware);
+		this.express.disable('x-powered-by');
 	}
 
 	private mountRouters(_express: Application): void {
