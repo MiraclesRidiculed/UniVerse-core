@@ -4,6 +4,8 @@ import compression from 'compression';
 import { blue, err, misc } from '../modules/logger';
 import { rateLimiterMiddleware } from '../modules/util';
 import { setupClientRouter, setupAdminRouter } from './router';
+// @ts-ignore
+import cors from 'cors';
 
 class Express {
 	public express: express.Application;
@@ -18,6 +20,7 @@ class Express {
 		_express.use(express.json());
 		_express.use(compression());
 		_express.use(rateLimiterMiddleware);
+		_express.use(cors());
 		_express.disable('x-powered-by');
 	}
 
