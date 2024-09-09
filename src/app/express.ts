@@ -1,7 +1,7 @@
 import express, { Application } from 'express';
 // @ts-ignore
 import compression from 'compression';
-import { blue, err, misc } from '../modules/logger';
+import { blue, err } from '../modules/logger';
 import { rateLimiterMiddleware } from '../modules/util';
 import { setupClientRouter, setupAdminRouter } from './router';
 // @ts-ignore
@@ -12,12 +12,16 @@ class Express {
 
 	constructor() {
 		this.express = express();
+		this.setupMiddleware();
 		this.mountRouters(this.express);
-		this.express.use(cors());
+		this.express.disable('x-powered-by');
+	}
+
+	private setupMiddleware(): void {
+		this.express.use(cors()); // Make sure CORS middleware is called before routers
 		this.express.use(express.json());
 		this.express.use(compression());
 		this.express.use(rateLimiterMiddleware);
-		this.express.disable('x-powered-by');
 	}
 
 	private mountRouters(_express: Application): void {

@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Title</title>
+	<script>
+		window.onload = async () => {
+			try {
+				const res = await fetch('http://localhost:7000/client/students/nigga123');
+				console.log(await res.json());
+			} catch (e) {
+				console.error(e);
+			}
+		}
+	</script>
+</head>
+<body>
+	<h1>Hi</h1>
+</body>
+</html>
