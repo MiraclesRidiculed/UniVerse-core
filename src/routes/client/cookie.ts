@@ -4,7 +4,7 @@
  *  Endpoint to be used to authenticate students on login
  */
 
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
 import { cookies } from '../../app/cache';
 
 export const name = 'cookie';
