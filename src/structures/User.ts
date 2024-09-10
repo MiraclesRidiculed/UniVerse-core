@@ -1,13 +1,16 @@
-interface UserData {
+import UserSchema from "../schemas/UserSchema";
+
+export interface UserData {
 	id: string;
 	name: string;
 	email: string;
 	department: string;
 	batch: number;
 	handles: Handles;
+	picture?: string;
 }
 
-interface Handles {
+export interface Handles {
 	instagram: string,
 	github: string,
 	facebook: string,
@@ -21,6 +24,7 @@ class User implements UserData {
 	department: string;
 	batch: number;
 	handles: Handles;
+	picture?: string;
 
 	constructor(data: UserData) {
 		this.id = data.id
@@ -29,6 +33,18 @@ class User implements UserData {
 		this.department = data.department;
 		this.batch = data.batch;
 		this.handles = data.handles;
+	}
+
+	async setPicture(link: string): Promise<User> {
+		await UserSchema.updateOne({ id: this.id }, { picture: link });
+		this.picture = link;
+		return this;
+	}
+
+	async updateHandles(data: Handles): Promise<User> {
+		await UserSchema.updateOne({ id: this.id }, { handles: data });
+		this.handles = data;
+		return this;
 	}
 }
 

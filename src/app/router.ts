@@ -55,7 +55,7 @@ function registerRoutes(
 
 export function setupAdminRouter() {
 	const adminRouter = express.Router();
-	const methods = ['get', 'post', 'put', 'delete'];
+	const methods = ['get', 'post', 'put', 'delete', 'patch'];
 	const routes = loadRoutesFromDirectory(routePaths.adminRoutes);
 	registerRoutes(adminRouter, routePaths.adminRoutes, methods, routes);
 	return adminRouter;
@@ -63,7 +63,7 @@ export function setupAdminRouter() {
 
 export function setupClientRouter() {
 	const clientRouter = express.Router();
-	const methods = ['get', 'post', 'put', 'delete'];
+	const methods = ['get', 'post', 'put', 'delete', 'patch'];
 	const routes = loadRoutesFromDirectory(routePaths.clientRoutes);
 	registerRoutes(clientRouter, routePaths.clientRoutes, methods, routes);
 	return clientRouter;
