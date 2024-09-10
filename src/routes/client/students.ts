@@ -20,6 +20,7 @@ export async function patch(req: Request, res: Response) {
 		return res.status(404).send('User not found!');
 
 	try {
+		console.log(UniVerseClient.users.get(id));
 		await UniVerseClient.users.get(id)?.updateHandles(handles);
 		return res.sendStatus(200);
 	} catch (e) {

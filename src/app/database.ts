@@ -6,6 +6,7 @@ import * as bluebird from 'bluebird';
 import { err, success } from '../modules/logger';
 import UserSchema from '../schemas/UserSchema';
 import HotspotSchema from '../schemas/HotspotSchema';
+import User from "../structures/User";
 
 class Database {
 	private started: boolean;
@@ -41,9 +42,10 @@ class Database {
 	}
 
 	private async fetchUsers(UniVerse: UniVerse): Promise<void> {
-		const UserData = await UserSchema.find().lean();
-		for (const user of UserData) {
-			// @ts-ignore
+		const users: User[] = await UserSchema.find().lean();
+
+		for (const UserData of users) {
+			const user = new User(UserData);
 			UniVerse.users.set(user.id, user);
 		}
 	}
