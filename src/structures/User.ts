@@ -33,6 +33,7 @@ class User implements UserData {
 		this.department = data.department;
 		this.batch = data.batch;
 		this.handles = data.handles;
+		this.picture = data.picture || '';
 	}
 
 	async setPicture(link: string): Promise<User> {
