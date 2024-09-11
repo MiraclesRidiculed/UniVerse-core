@@ -6,10 +6,6 @@ const UserSchema = new Schema({
 		required: true,
 		unique: true,
 	},
-	picture: {
-		type: String,
-		default: 'https://insights2techinfo.com/wp-content/uploads/2022/01/za.png',
-	},
 	name: {
 		type: String,
 		required: true,
@@ -44,7 +40,11 @@ const UserSchema = new Schema({
 			type: String,
 			default: '',
 		},
-	}
+	},
+	picture: {
+		type: String,
+		default: 'https://insights2techinfo.com/wp-content/uploads/2022/01/za.png',
+	},
 });
 
 export default mongoose.model('User', UserSchema);

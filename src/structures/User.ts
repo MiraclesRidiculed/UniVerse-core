@@ -47,6 +47,10 @@ class User implements UserData {
 		this.handles = data;
 		return this;
 	}
+
+	async createNew(): Promise<void> {
+		await UserSchema.create(this);
+	}
 }
 
 export default User;

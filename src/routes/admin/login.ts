@@ -5,7 +5,7 @@
  *  Its currently basic, and copy-pasted from the quiz project, will fix soon
  */
 
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
 
 export const name = 'login/:id';
 
