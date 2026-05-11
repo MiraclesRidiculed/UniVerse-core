@@ -1,23 +1,12 @@
-import { misc, blue, success } from '../modules/logger';
+import { misc, blue } from '../modules/logger';
 import Database from './database';
 import Express from './express';
 import { ADMIN } from './cache';
-import { Collection } from '@discordjs/collection';
-import University from '../structures/University';
 
 import dotenv from 'dotenv';
 import path from 'path';
-import User from '../structures/User';
 
 class UniVerse {
-	public users: Collection<string, User>;
-	public university: University;
-
-	constructor() {
-		this.users = new Collection<string, User>();
-		this.university = new University(this);
-	}
-
 	private init(): void {
 		blue(
 			'------------------ UniVerse - Core ------------------------------------------------',
@@ -36,25 +25,21 @@ class UniVerse {
 		await Database.start();
 	}
 
+	private loadRuntimeSecrets(): void {
+		process.env.ADMIN = ADMIN;
+	}
+
 	private loadServer(): void {
 		misc(`Server :: Booting - PORT: ${process.env.PORT}`);
 
 		Express.init();
 	}
 
-	private loadData(): void {
-		process.env.ADMIN = ADMIN;
-
-		Database.fetchData(this).then(() =>
-			success('Data successfully fetched from Database'),
-		);
-	}
-
 	public async login(): Promise<this> {
 		this.init();
 		this.loadConfiguration();
+		this.loadRuntimeSecrets();
 		await this.connectDatabase();
-		this.loadData();
 		this.loadServer();
 
 		return this;

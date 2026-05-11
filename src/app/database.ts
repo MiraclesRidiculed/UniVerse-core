@@ -1,63 +1,72 @@
-import mongoose from 'mongoose';
-import { MongoError } from 'mongodb';
-import UniVerse from './UniVerse';
-// @ts-ignore
-import * as bluebird from 'bluebird';
+import mysql, {
+	type Pool,
+	type PoolOptions,
+	type ResultSetHeader,
+} from 'mysql2/promise';
 import { err, success } from '../modules/logger';
-import UserSchema from '../schemas/UserSchema';
-import HotspotSchema from '../schemas/HotspotSchema';
-import User from "../structures/User";
+
+type QueryParam = string | number | boolean | Date | null;
 
 class Database {
-	private started: boolean;
+	private pool: Pool | null;
 
 	constructor() {
-		this.started = false;
+		this.pool = null;
 	}
 
-	public async start(): Promise<any> {
-		if (
-			!process.env.MONGO_URI ||
-			!(typeof process.env.MONGO_URI === 'string')
-		)
-			return err('MongoDB URI must be a string');
-		const dbName: string = process.env.DB_NAME || 'core';
-		(<any>mongoose).Promise = bluebird;
+	private getConfig(): string | PoolOptions {
+		if (process.env.MYSQL_URL) return process.env.MYSQL_URL;
 
+		return {
+			host: process.env.MYSQL_HOST || '127.0.0.1',
+			port: Number(process.env.MYSQL_PORT || 3306),
+			user: process.env.MYSQL_USER || 'root',
+			password: process.env.MYSQL_PASSWORD || '',
+			database: process.env.MYSQL_DATABASE || 'universe_core',
+			waitForConnections: true,
+			connectionLimit: Number(process.env.MYSQL_CONNECTION_LIMIT || 10),
+			queueLimit: 0,
+			namedPlaceholders: false,
+		};
+	}
+
+	public async start(): Promise<boolean> {
 		try {
-			await mongoose.connect(process.env.MONGO_URI, {
-				dbName: dbName,
-			});
-			success(
-				'Established connection with Database: ' + dbName.toUpperCase(),
+			const config = this.getConfig();
+			this.pool =
+				typeof config === 'string'
+					? mysql.createPool(config)
+					: mysql.createPool(config);
+			await this.pool.query('SELECT 1');
+			success('Established connection with MySQL database');
+			return true;
+		} catch (error: any) {
+			err('Failed to connect to the MySQL server');
+			err(error.message);
+			this.pool = null;
+			return false;
+		}
+	}
+
+	private ensurePool(): Pool {
+		if (!this.pool)
+			throw new Error(
+				'MySQL pool not initialised. Call Database.start() before querying.',
 			);
-			// @ts-ignore
-		} catch (error: MongoError) {
-			err('Failed to connect to the Mongo server:');
-			err(error.errmsg);
-		}
-
-		this.started = true;
-		return this.started;
+		return this.pool;
 	}
 
-	private async fetchUsers(UniVerse: UniVerse): Promise<void> {
-		const users: User[] = await UserSchema.find().lean();
-
-		for (const UserData of users) {
-			const user = new User(UserData);
-			UniVerse.users.set(user.id, user);
-		}
+	public async query<T>(sql: string, params: QueryParam[] = []): Promise<T> {
+		const [rows] = await this.ensurePool().query(sql, params);
+		return rows as T;
 	}
 
-	private async fetchHotspots(UniVerse: UniVerse): Promise<void> {
-		const HotspotData = await HotspotSchema.find();
-		UniVerse.university.bulkAddHotspot(HotspotData);
-	}
-
-	public async fetchData(UniVerse: UniVerse) {
-		await this.fetchUsers(UniVerse);
-		await this.fetchHotspots(UniVerse);
+	public async execute<T = ResultSetHeader>(
+		sql: string,
+		params: QueryParam[] = [],
+	): Promise<T> {
+		const [result] = await this.ensurePool().execute(sql, params);
+		return result as T;
 	}
 }
 
