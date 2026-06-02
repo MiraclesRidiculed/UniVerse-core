@@ -40,11 +40,18 @@ function registerRoutes(
 					async (req: Request, res: Response, next: NextFunction) => {
 						try {
 							await endpoint[method](req, res, next);
-						} catch (error) {
+						} catch (error: any) {
 							console.error(
 								`Error handling route ${routeKey}: ${error}`,
 							);
-							res.sendStatus(500);
+							if (!res.headersSent)
+								res.status(500).json({
+									error: 'Internal server error',
+									details:
+										process.env.NODE_ENV === 'production'
+											? undefined
+											: error?.message || String(error),
+								});
 						}
 					},
 				);

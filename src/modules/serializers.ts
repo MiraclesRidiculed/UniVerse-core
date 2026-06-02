@@ -1,8 +1,9 @@
 import type { StudentProfile, StudentRecord } from '../types/schema';
 
 export function serializeStudentRecord(student: StudentRecord) {
+	const { passwordHash: _passwordHash, ...safeStudent } = student;
 	return {
-		...student,
+		...safeStudent,
 		id: student.studentId,
 		picture: '',
 		handles: {

@@ -16,8 +16,10 @@ export interface StudentRecord {
 	campusId: string;
 	name: string;
 	email: string;
+	passwordHash?: string;
 	department: string;
 	batch: number;
+	bio: string;
 	instagram: string;
 	github: string;
 	linkedin: string;
@@ -64,6 +66,8 @@ export interface CommunitySummary extends CommunityRecord {
 	campusName: string;
 	postCount: number;
 	resourceCount: number;
+	memberCount: number;
+	joined?: boolean;
 }
 
 export interface CampusSummary extends CampusRecord {
@@ -93,6 +97,10 @@ export interface DashboardSummary {
 }
 
 export interface StudentHandleUpdateInput {
+	name?: string;
+	email?: string;
+	department?: string;
+	batch?: number;
 	instagram?: string;
 	github?: string;
 	linkedin?: string;
@@ -103,9 +111,11 @@ export interface CreateStudentInput {
 	campusId?: string;
 	name: string;
 	email: string;
-	department: string;
-	batch: number;
+	department?: string;
+	batch?: number;
+	bio?: string;
 	instagram?: string;
 	github?: string;
 	linkedin?: string;
+	password?: string;
 }

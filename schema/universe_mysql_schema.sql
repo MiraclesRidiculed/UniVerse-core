@@ -12,13 +12,28 @@ CREATE TABLE student (
     campus_id VARCHAR(50) NOT NULL,
     name VARCHAR(120) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
-    department VARCHAR(120) NOT NULL,
-    batch INT NOT NULL,
+    password_hash VARCHAR(255) NOT NULL DEFAULT '',
+    department VARCHAR(120) DEFAULT '',
+    batch INT DEFAULT 0,
+    bio TEXT DEFAULT '',
     instagram VARCHAR(255) DEFAULT '',
     github VARCHAR(255) DEFAULT '',
     linkedin VARCHAR(255) DEFAULT '',
     CONSTRAINT fk_student_campus
         FOREIGN KEY (campus_id) REFERENCES campus(campus_id)
+        ON DELETE CASCADE
+);
+
+CREATE TABLE community_member (
+    community_id VARCHAR(50) NOT NULL,
+    student_id VARCHAR(50) NOT NULL,
+    joined_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (community_id, student_id),
+    CONSTRAINT fk_community_member_community
+        FOREIGN KEY (community_id) REFERENCES community(community_id)
+        ON DELETE CASCADE,
+    CONSTRAINT fk_community_member_student
+        FOREIGN KEY (student_id) REFERENCES student(student_id)
         ON DELETE CASCADE
 );
 
