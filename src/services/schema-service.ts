@@ -53,8 +53,10 @@ const studentSelect = `
 		campus_id AS campusId,
 		name,
 		email,
+		password_hash AS passwordHash,
 		department,
 		batch,
+		COALESCE(bio, '') AS bio,
 		COALESCE(instagram, '') AS instagram,
 		COALESCE(github, '') AS github,
 		COALESCE(linkedin, '') AS linkedin
@@ -124,10 +126,16 @@ class SchemaService {
 		const rows = await Database.query<CampusIdRow[]>(
 			`SELECT campus_id AS campusId FROM campus ORDER BY campus_name ASC LIMIT 1`,
 		);
-		if (!rows[0])
-			throw new Error(
-				'No campus records found. Seed the campus table before creating students.',
+		if (!rows[0]) {
+			await Database.execute<ResultSetHeader>(
+				`
+					INSERT INTO campus (campus_id, campus_name, location)
+					VALUES (?, ?, ?)
+				`,
+				['camp_default', 'UniVerse Campus', 'Campus network'],
 			);
+			return 'camp_default';
+		}
 
 		return rows[0].campusId;
 	}
@@ -137,6 +145,10 @@ class SchemaService {
 		existing: StudentRecord,
 	): Required<StudentHandleUpdateInput> {
 		return {
+			name: input.name ?? existing.name,
+			email: input.email ?? existing.email,
+			department: input.department ?? existing.department ?? '',
+			batch: input.batch ?? existing.batch ?? 0,
 			instagram: input.instagram ?? existing.instagram ?? '',
 			github: input.github ?? existing.github ?? '',
 			linkedin: input.linkedin ?? existing.linkedin ?? '',
@@ -239,6 +251,14 @@ class SchemaService {
 		return rows[0] ?? null;
 	}
 
+	public async getStudentByEmail(email: string): Promise<StudentRecord | null> {
+		const rows = await Database.query<StudentRow[]>(
+			`${studentSelect} WHERE email = ? LIMIT 1`,
+			[email],
+		);
+		return rows[0] ?? null;
+	}
+
 	public async getStudentProfile(studentId: string): Promise<StudentProfile | null> {
 		const student = await this.getStudentRecord(studentId);
 		if (!student) return null;
@@ -295,12 +315,20 @@ class SchemaService {
 			`
 				UPDATE student
 				SET
+					name = ?,
+					email = ?,
+					department = ?,
+					batch = ?,
 					instagram = ?,
 					github = ?,
 					linkedin = ?
 				WHERE student_id = ?
 			`,
 			[
+				nextHandles.name,
+				nextHandles.email,
+				nextHandles.department,
+				nextHandles.batch,
 				nextHandles.instagram,
 				nextHandles.github,
 				nextHandles.linkedin,
@@ -322,20 +350,24 @@ class SchemaService {
 					campus_id,
 					name,
 					email,
+					password_hash,
 					department,
 					batch,
+					bio,
 					instagram,
 					github,
 					linkedin
-				) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+				) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 			`,
 			[
 				studentId,
 				campusId,
 				input.name,
 				input.email,
-				input.department,
-				input.batch,
+				input.password ?? '',
+				input.department ?? '',
+				input.batch ?? 0,
+				input.bio ?? '',
 				input.instagram ?? '',
 				input.github ?? '',
 				input.linkedin ?? '',
@@ -368,6 +400,12 @@ class SchemaService {
 						FROM resource r
 						WHERE r.community_id = c.community_id
 					) AS resourceCount
+					,
+					(
+						SELECT COUNT(*)
+						FROM community_member cm
+						WHERE cm.community_id = c.community_id
+					) AS memberCount
 				FROM community c
 				INNER JOIN campus cp ON cp.campus_id = c.campus_id
 				ORDER BY c.name ASC
@@ -375,16 +413,178 @@ class SchemaService {
 		);
 	}
 
-	public async listPosts(): Promise<PostFeedItem[]> {
+	public async createCommunity(input: {
+		campusId: string;
+		name: string;
+		description: string;
+		studentId: string;
+	}): Promise<CommunitySummary> {
+		const campusId = await this.resolveCampusId(input.campusId);
+		const communityId = uid.rnd();
+
+		await Database.execute<ResultSetHeader>(
+			`
+				INSERT INTO community (community_id, campus_id, name, description)
+				VALUES (?, ?, ?, ?)
+			`,
+			[communityId, campusId, input.name, input.description],
+		);
+
+		await this.joinCommunity(communityId, input.studentId);
+		const community = await this.getCommunity(communityId);
+		if (!community) throw new Error('Community was created but could not reload');
+		return community;
+	}
+
+	public async getCommunity(
+		communityId: string,
+		studentId?: string,
+	): Promise<CommunitySummary | null> {
+		const rows = await Database.query<CommunitySummaryRow[]>(
+			`
+				SELECT
+					c.community_id AS communityId,
+					c.campus_id AS campusId,
+					c.name,
+					COALESCE(c.description, '') AS description,
+					cp.campus_name AS campusName,
+					(SELECT COUNT(*) FROM post p WHERE p.community_id = c.community_id) AS postCount,
+					(SELECT COUNT(*) FROM resource r WHERE r.community_id = c.community_id) AS resourceCount,
+					(SELECT COUNT(*) FROM community_member cm WHERE cm.community_id = c.community_id) AS memberCount,
+					${
+						studentId
+							? `(SELECT COUNT(*) FROM community_member cm WHERE cm.community_id = c.community_id AND cm.student_id = ?) AS joined`
+							: `0 AS joined`
+					}
+				FROM community c
+				INNER JOIN campus cp ON cp.campus_id = c.campus_id
+				WHERE c.community_id = ?
+				LIMIT 1
+			`,
+			studentId ? [studentId, communityId] : [communityId],
+		);
+		const community = rows[0];
+		if (!community) return null;
+		return { ...community, joined: Boolean(community.joined) };
+	}
+
+	public async joinCommunity(
+		communityId: string,
+		studentId: string,
+	): Promise<void> {
+		await Database.execute<ResultSetHeader>(
+			`
+				INSERT IGNORE INTO community_member (community_id, student_id)
+				VALUES (?, ?)
+			`,
+			[communityId, studentId],
+		);
+	}
+
+	public async listCommunityMembers(
+		communityId: string,
+	): Promise<StudentRecord[]> {
+		return Database.query<StudentRow[]>(
+			`
+				${studentSelect}
+				INNER JOIN community_member cm ON cm.student_id = student.student_id
+				WHERE cm.community_id = ?
+				ORDER BY student.name ASC
+			`,
+			[communityId],
+		);
+	}
+
+	public async listPosts(communityId?: string): Promise<PostFeedItem[]> {
+		if (communityId) {
+			return Database.query<PostFeedRow[]>(
+				`${postFeedSelect} WHERE p.community_id = ? ORDER BY p.created_at DESC`,
+				[communityId],
+			);
+		}
 		return Database.query<PostFeedRow[]>(
 			`${postFeedSelect} ORDER BY p.created_at DESC`,
 		);
 	}
 
-	public async listResources(): Promise<ResourceFeedItem[]> {
+	public async createPost(input: {
+		studentId: string;
+		communityId: string;
+		content: string;
+	}): Promise<PostFeedItem> {
+		const postId = uid.rnd();
+		await Database.execute<ResultSetHeader>(
+			`
+				INSERT INTO post (post_id, student_id, community_id, content)
+				VALUES (?, ?, ?, ?)
+			`,
+			[postId, input.studentId, input.communityId, input.content],
+		);
+		const rows = await Database.query<PostFeedRow[]>(
+			`${postFeedSelect} WHERE p.post_id = ? LIMIT 1`,
+			[postId],
+		);
+		if (!rows[0]) throw new Error('Post was created but could not reload');
+		return rows[0];
+	}
+
+	public async updatePost(
+		postId: string,
+		studentId: string,
+		content: string,
+	): Promise<PostFeedItem | null> {
+		const result = await Database.execute<ResultSetHeader>(
+			`UPDATE post SET content = ? WHERE post_id = ? AND student_id = ?`,
+			[content, postId, studentId],
+		);
+		if (result.affectedRows === 0) return null;
+		const rows = await Database.query<PostFeedRow[]>(
+			`${postFeedSelect} WHERE p.post_id = ? LIMIT 1`,
+			[postId],
+		);
+		return rows[0] ?? null;
+	}
+
+	public async deletePost(postId: string, studentId: string): Promise<boolean> {
+		const result = await Database.execute<ResultSetHeader>(
+			`DELETE FROM post WHERE post_id = ? AND student_id = ?`,
+			[postId, studentId],
+		);
+		return result.affectedRows > 0;
+	}
+
+	public async listResources(communityId?: string): Promise<ResourceFeedItem[]> {
+		if (communityId) {
+			return Database.query<ResourceFeedRow[]>(
+				`${resourceFeedSelect} WHERE r.community_id = ? ORDER BY r.created_at DESC`,
+				[communityId],
+			);
+		}
 		return Database.query<ResourceFeedRow[]>(
 			`${resourceFeedSelect} ORDER BY r.created_at DESC`,
 		);
+	}
+
+	public async createResource(input: {
+		studentId: string;
+		communityId: string;
+		title: string;
+		fileUrl: string;
+	}): Promise<ResourceFeedItem> {
+		const resourceId = uid.rnd();
+		await Database.execute<ResultSetHeader>(
+			`
+				INSERT INTO resource (resource_id, student_id, community_id, title, file_url)
+				VALUES (?, ?, ?, ?, ?)
+			`,
+			[resourceId, input.studentId, input.communityId, input.title, input.fileUrl],
+		);
+		const rows = await Database.query<ResourceFeedRow[]>(
+			`${resourceFeedSelect} WHERE r.resource_id = ? LIMIT 1`,
+			[resourceId],
+		);
+		if (!rows[0]) throw new Error('Resource was created but could not reload');
+		return rows[0];
 	}
 }
 

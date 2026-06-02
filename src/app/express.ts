@@ -1,4 +1,6 @@
 import express, { Application } from 'express';
+import path from 'path';
+import fs from 'fs';
 // @ts-ignore
 import compression from 'compression';
 import { blue, err } from '../modules/logger';
@@ -18,15 +20,33 @@ class Express {
 	}
 
 	private setupMiddleware(): void {
+		const uploadPath = path.join(__dirname, '../../uploads');
+		fs.mkdirSync(uploadPath, { recursive: true });
 		this.express.use(cors()); // Make sure CORS middleware is called before routers
 		this.express.use(express.json());
+		this.express.use(express.urlencoded({ extended: true }));
 		this.express.use(compression());
+		this.express.use('/uploads', express.static(uploadPath));
 		this.express.use(rateLimiterMiddleware);
 	}
 
 	private mountRouters(_express: Application): void {
 		this.express = _express.use(`/admin`, setupAdminRouter());
 		this.express = _express.use('/client', setupClientRouter());
+		this.express.use((_req, res) => {
+			res.status(404).json({ error: 'Route not found' });
+		});
+		this.express.use((error: any, _req: express.Request, res: express.Response) => {
+			console.error(error);
+			if (!res.headersSent)
+				res.status(500).json({
+					error: 'Internal server error',
+					details:
+						process.env.NODE_ENV === 'production'
+							? undefined
+							: error?.message || String(error),
+				});
+		});
 	}
 
 	public init(): void {

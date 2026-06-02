@@ -32,17 +32,18 @@ INSERT INTO student (
     campus_id,
     name,
     email,
+    password_hash,
     department,
     batch,
     instagram,
     github,
     linkedin
 ) VALUES
-('stu_001', 'camp_north', 'Aarav Sen', 'aarav@universe.edu', 'Computer Science', 2026, 'https://instagram.com/aarav.codes', 'https://github.com/aaravsen', 'https://linkedin.com/in/aaravsen'),
-('stu_002', 'camp_north', 'Mira Dutta', 'mira@universe.edu', 'Electronics', 2025, 'https://instagram.com/mira.builds', 'https://github.com/miradutta', 'https://linkedin.com/in/miradutta'),
-('stu_003', 'camp_design', 'Kabir Ray', 'kabir@universe.edu', 'Design', 2027, 'https://instagram.com/kabirframes', 'https://github.com/kabirray', 'https://linkedin.com/in/kabirray'),
-('stu_004', 'camp_research', 'Tara Bose', 'tara@universe.edu', 'Data Science', 2026, 'https://instagram.com/tarabose.ai', 'https://github.com/tarabose', 'https://linkedin.com/in/tarabose'),
-('stu_005', 'camp_design', 'Ishaan Malik', 'ishaan@universe.edu', 'Product', 2025, 'https://instagram.com/ishaan.makes', 'https://github.com/ishaanmalik', 'https://linkedin.com/in/ishaanmalik')
+('stu_001', 'camp_north', 'Aarav Sen', 'aarav@universe.edu', '', 'Computer Science', 2026, 'https://instagram.com/aarav.codes', 'https://github.com/aaravsen', 'https://linkedin.com/in/aaravsen'),
+('stu_002', 'camp_north', 'Mira Dutta', 'mira@universe.edu', '', 'Electronics', 2025, 'https://instagram.com/mira.builds', 'https://github.com/miradutta', 'https://linkedin.com/in/miradutta'),
+('stu_003', 'camp_design', 'Kabir Ray', 'kabir@universe.edu', '', 'Design', 2027, 'https://instagram.com/kabirframes', 'https://github.com/kabirray', 'https://linkedin.com/in/kabirray'),
+('stu_004', 'camp_research', 'Tara Bose', 'tara@universe.edu', '', 'Data Science', 2026, 'https://instagram.com/tarabose.ai', 'https://github.com/tarabose', 'https://linkedin.com/in/tarabose'),
+('stu_005', 'camp_design', 'Ishaan Malik', 'ishaan@universe.edu', '', 'Product', 2025, 'https://instagram.com/ishaan.makes', 'https://github.com/ishaanmalik', 'https://linkedin.com/in/ishaanmalik')
 ON DUPLICATE KEY UPDATE
     campus_id = VALUES(campus_id),
     name = VALUES(name),

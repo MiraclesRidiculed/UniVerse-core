@@ -1,11 +1,20 @@
 import type { Request, Response } from 'express';
-import SchemaService from '../../services/schema-service';
+import { createPost, listPosts } from '../../controllers/post-controller';
+import { requireAuth } from '../../middleware/auth';
 
 export const name = 'posts';
 
-export async function get(_req: Request, res: Response) {
+export async function get(req: Request, res: Response) {
 	try {
-		return res.json(await SchemaService.listPosts());
+		return requireAuth(req, res, () => listPosts(req, res));
+	} catch (error: any) {
+		return res.status(500).json({ error: error.message });
+	}
+}
+
+export async function post(req: Request, res: Response) {
+	try {
+		return requireAuth(req, res, () => createPost(req, res));
 	} catch (error: any) {
 		return res.status(500).json({ error: error.message });
 	}
